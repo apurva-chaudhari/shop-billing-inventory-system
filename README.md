@@ -1,248 +1,267 @@
-# Shop Billing App — Setup Guide
+# 🧾 Shop Billing & Inventory Management System
 
-This is a working single-shop billing system:
-- Backend: Node.js + Express + Prisma + SQLite
-- Frontend: React + Vite + Bootstrap
+A full-stack **Shop Billing and Inventory Management System** built to simplify daily shop operations such as billing, product management, inventory tracking, customer management, supplier management, purchases, and invoice generation.
 
-## Prerequisites
-Install these first (one-time):
-1. **Node.js** (v18 or newer) — download from https://nodejs.org
-2. A code editor — **VS Code** recommended
-3. Internet connection (needed once, to download packages)
-
-Check Node is installed by opening a terminal/command prompt and running:
-```
-node -v
-npm -v
-```
+The application provides a modern React-based interface connected to a Node.js/Express backend with Prisma and SQLite.
 
 ---
 
-## STEP 1: Backend setup
+## 📸 Application Screenshots
 
-Open a terminal in the `backend` folder:
+The following screenshots are from the actual working application.
 
-```bash
-cd backend
-npm install
-```
+### 🔐 Authentication
 
-This downloads Express, Prisma, JWT, bcrypt, etc.
+#### Sign Up
 
-Create your `.env` file (copy the example):
-```bash
-cp .env.example .env
-```
-Open `.env` and change `JWT_SECRET` to any random long string.
+![Sign Up](screenshots/signup.png)
 
-Create the database (this reads `prisma/schema.prisma` and builds `dev.db`):
-```bash
-npx prisma migrate dev --name init
-```
+#### Login
 
-Start the backend server:
-```bash
-npm run dev
-```
-
-You should see: `Server running on http://localhost:5000`
-
-Test it works by opening `http://localhost:5000` in your browser — you should see a JSON status message.
+![Login](screenshots/login.png)
 
 ---
 
-## STEP 2: Frontend setup
+## 📊 Dashboard
 
-Open a **new** terminal (keep backend running) in the `frontend` folder:
+The dashboard provides an overview of the shop's daily business activity, including sales, orders, low-stock items, GST collected, and sales analytics.
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-You should see something like: `Local: http://localhost:5173`
-
-Open that URL in your browser. You'll see the Login page.
+![Dashboard](screenshots/dashboard.png)
 
 ---
 
-## STEP 3: Using the app
+## 🧾 Billing
 
-1. Click **Sign up**, create a shop account (shop name, email, password)
-2. You'll land on the Dashboard
-3. Go to **Products** → add your paint products (name, category, unit, price, stock quantity)
-4. Go to **New Bill** → search a product, click Add, adjust quantity, optionally add customer name
-5. Click **Generate Bill & Print** → this saves the bill, reduces stock automatically, and takes you to a printable invoice
-6. Click **🖨️ Print Invoice** to print (uses your browser's print dialog — connect it to your printer)
-7. **Bill History** shows all past bills, each can be reopened and reprinted
+The billing module allows users to search products, add products to the bill, manage quantities, calculate GST, enter customer details, select payment methods, and generate invoices.
 
----
+![Billing](screenshots/billing.png)
 
-## STEP 4: Accessing from your phone (same wifi network)
+### Billing Features
 
-1. Find your laptop's local IP address:
-   - Windows: run `ipconfig` in cmd, look for "IPv4 Address" (e.g. `192.168.1.5`)
-   - Mac: System Settings → Wifi → Details
-2. In `frontend/src/api.js`, change:
-   ```js
-   const API_BASE_URL = "http://192.168.1.5:5000/api"; // your laptop's IP
-   ```
-3. On your phone (connected to the same wifi), open:
-   ```
-   http://192.168.1.5:5173
-   ```
-4. You'll see the same app — login with the same shop account.
-
-Note: your laptop must stay on and both servers must be running for the phone to access it. For permanent access from anywhere, you'll need to deploy to a hosting service (see below).
+- Product search
+- Category filtering
+- Add products to bill
+- Increase/decrease quantity
+- Automatic subtotal calculation
+- GST calculation
+- Grand total calculation
+- Customer details
+- Cash / UPI / Credit payment methods
+- Voice-assisted billing
+- Invoice generation
+- Print invoice
 
 ---
 
-## STEP 5: Deploying so it works from anywhere (not just wifi)
+## 📦 Products & Inventory
 
-When you're ready to go live:
+### Add Product
 
-1. **Backend**: deploy to [Render](https://render.com) or [Railway](https://railway.app) (free tiers available)
-   - Switch `DATABASE_URL` to a real PostgreSQL database (Render/Railway both offer free Postgres)
-   - In `prisma/schema.prisma`, change `provider = "sqlite"` to `provider = "postgresql"`
-2. **Frontend**: deploy to [Vercel](https://vercel.com) or [Netlify](https://netlify.com) (free, connects to your GitHub repo)
-3. Update `API_BASE_URL` in `frontend/src/api.js` to your deployed backend URL
+Products can be added with important inventory information such as category, unit, barcode, price, GST percentage, stock quantity, and low-stock threshold.
 
----
+![Add Product](screenshots/products-add.png)
 
-# Shop Billing App — Setup Guide
+### Product Inventory
 
-A multi-feature shop billing system:
-- Backend: Node.js + Express + Prisma + SQLite
-- Frontend: React + Vite + Bootstrap
+The inventory page provides product search, category filtering, stock information, pricing, GST details, and edit/delete actions.
 
-## Features included
-- Shop signup/login (each shop's data is fully private)
-- Products & Inventory with custom categories (Kids/Mens/Womens, or whatever fits your shop)
-- Billing screen with GST calculation, auto stock deduction, printable invoices
-- Customer Khata (credit/due tracking with payment recording)
-- Supplier management + Purchase recording (stock increases only via recorded purchases)
-- Shop Settings: phone number, GST number, custom invoice prefix — all shown on invoices
-- Dashboard with today's sales, bill count, low stock alerts
-- Duplicate-product protection
+![Product Inventory](screenshots/products-inventory.png)
 
-## Prerequisites
-1. **Node.js** (v18+) — https://nodejs.org
-2. A code editor — VS Code recommended
-3. Internet connection (needed once, to download packages)
+### Inventory Features
 
-Check Node is installed:
-```
-node -v
-npm -v
-```
+- Add products
+- Edit products
+- Delete products
+- Product categories
+- Barcode management
+- Barcode scanning
+- Price management
+- GST management
+- Stock quantity tracking
+- Low-stock alerts
+- Product search
+- Category filtering
 
 ---
 
-## STEP 1: Backend setup
+## 🧾 Bill History
 
-```bash
-cd backend
-npm install
-```
+The Bill History module displays previously generated invoices along with invoice number, date, customer, total amount, and payment method.
 
-If npm warns about pending install scripts (common with Prisma), approve them:
-```bash
-npm approve-scripts --allow-scripts-pending
-```
-(If that doesn't work, approve each package individually: `npm approve-scripts @prisma/client`, etc., then `npm rebuild`.)
-
-Create your `.env` file:
-```bash
-copy .env.example .env      # Windows
-cp .env.example .env        # Mac/Linux
-```
-Open `.env` and change `JWT_SECRET` to any random long string.
-
-Create the database:
-```bash
-npx prisma migrate dev --name init
-```
-
-Start the backend:
-```bash
-npm run dev
-```
-You should see: `Server running on http://localhost:5000`. Leave this terminal open.
+![Bill History](screenshots/bill-history.png)
 
 ---
 
-## STEP 2: Frontend setup
+## 🧾 Invoice
 
-Open a **new terminal**:
-```bash
-cd frontend
-npm install
-npm run dev
-```
-Open the printed `http://localhost:5173` URL in your browser.
+The invoice page displays complete billing information including products, quantities, prices, GST, subtotal, total amount, customer details, and payment information.
+
+It also provides options for printing and downloading the invoice.
+
+![Invoice](screenshots/invoice.png)
 
 ---
 
-## STEP 3: Using the app
+## ⚙️ Settings
 
-1. **Sign up** — creates your shop account
-2. **Settings** — set your shop phone number, GST number, invoice prefix, and add categories that fit your shop (e.g. a clothing shop: Kids, Mens, Womens)
-3. **Suppliers** — add your suppliers
-4. **Purchases** — record stock coming in from a supplier (this is how stock quantities go up)
-5. **Products** — add products, assign a category, set price/GST%/low-stock threshold
-6. **New Bill** — search or filter by category, add to cart, optionally add a customer, choose payment mode (Cash/UPI/Credit), generate + print
-7. **Customer Khata** — see who owes money and record payments as they come in
-8. **Bill History** — reopen and reprint any past invoice
+The Settings module allows the shop owner to configure shop information and product categories.
 
----
+![Settings](screenshots/settings.png)
 
-## STEP 4: Phone access (same wifi)
+### Settings Features
 
-1. Find your laptop's local IP: `ipconfig` (Windows) → look for IPv4 Address
-2. In `frontend/src/api.js`, change `API_BASE_URL` to `http://<your-ip>:5000/api`
-3. On your phone (same wifi), open `http://<your-ip>:5173`
+- Shop name
+- Owner / shop phone number
+- GST number
+- Invoice number prefix
+- Product categories
+- Shop profile management
 
 ---
 
-## What's next (not built yet — future phases)
+# ✨ Features
 
-- **MySQL/PostgreSQL migration** — needed before real multi-device production use; SQLite is a single file, fine for development/testing only
-- **PDF invoice download + WhatsApp share**
-- **Barcode scanning**
-- **PWA conversion + Play Store packaging**
-- **Cloud deployment** (Render/Railway for backend, Vercel/Netlify for frontend)
+## 🔐 Authentication
 
-## Project structure
-```
-paint-billing-app/
-  backend/
-    prisma/schema.prisma     <- all database tables
-    src/
-      routes/
-        auth.js              <- signup/login/shop settings
-        products.js          <- inventory CRUD
-        categories.js        <- custom category management
-        bills.js             <- core billing logic (GST, stock, invoice numbers)
-        customers.js         <- Khata (credit/due tracking)
-        suppliers.js         <- supplier CRUD
-        purchases.js         <- stock-in recording
-      middleware/auth.js      <- login protection
-      server.js                <- entry point
-  frontend/
-    src/
-      pages/
-        Login.jsx, Signup.jsx
-        Dashboard.jsx
-        Products.jsx
-        Billing.jsx           <- main POS screen
-        BillHistory.jsx
-        InvoiceView.jsx       <- printable invoice
-        Settings.jsx          <- shop profile + categories
-        Customers.jsx         <- Khata page
-        Suppliers.jsx
-        Purchases.jsx
-      App.jsx                 <- routing + sidebar nav
-      api.js                  <- backend connection
-```
+- User registration
+- User login
+- JWT-based authentication
+- Protected application routes
 
+## 📊 Dashboard
+
+- Today's sales
+- Total orders
+- Low-stock products
+- GST collected
+- Weekly sales chart
+- Monthly revenue chart
+- Top products
+- Category-wise sales
+
+## 🧾 Billing
+
+- Product search
+- Category filtering
+- Shopping cart
+- Quantity management
+- GST calculation
+- Customer details
+- Multiple payment methods
+- Voice-assisted billing
+- Invoice generation
+- Invoice printing
+
+## 📦 Inventory
+
+- Product management
+- Category management
+- Barcode support
+- Camera barcode scanning
+- Stock tracking
+- Low-stock alerts
+- Product search and filtering
+
+## 👥 Customers
+
+- Customer management
+- Customer information
+- Customer billing information
+
+## 🚚 Suppliers
+
+- Supplier management
+- Supplier information
+- Supplier records
+
+## 🛒 Purchases
+
+- Purchase management
+- Supplier-related purchases
+- Inventory updates
+
+## 🧾 Invoice & Bill History
+
+- Previous bill records
+- Invoice details
+- Print invoice
+- Download invoice as PDF
+
+---
+
+# 🛠️ Technology Stack
+
+## Frontend
+
+- **React.js**
+- **React Router**
+- **Vite**
+- **Bootstrap**
+- **Axios**
+- **Lucide React**
+- **Recharts**
+
+## Backend
+
+- **Node.js**
+- **Express.js**
+- **JWT Authentication**
+- **REST APIs**
+- **Prisma ORM**
+
+## Database
+
+- **SQLite**
+- **Prisma Migrations**
+
+## Development Tools
+
+- **Git**
+- **GitHub**
+- **VS Code**
+
+---
+
+# 🏗️ Project Architecture
+
+```text
+                    ┌──────────────────────┐
+                    │        User          │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │   React Frontend     │
+                    │                      │
+                    │ Dashboard            │
+                    │ Billing              │
+                    │ Products             │
+                    │ Customers            │
+                    │ Suppliers            │
+                    │ Purchases            │
+                    │ Settings             │
+                    └──────────┬───────────┘
+                               │
+                               │ Axios
+                               ▼
+                    ┌──────────────────────┐
+                    │   Express Backend    │
+                    │                      │
+                    │ Auth API             │
+                    │ Products API         │
+                    │ Billing API          │
+                    │ Customers API       │
+                    │ Suppliers API       │
+                    │ Purchases API        │
+                    │ Categories API       │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │     Prisma ORM       │
+                    └──────────┬───────────┘
+                               │
+                               ▼
+                    ┌──────────────────────┐
+                    │    SQLite Database   │
+                    └──────────────────────┘
