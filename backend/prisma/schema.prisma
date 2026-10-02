@@ -1,0 +1,159 @@
+// This file defines your database tables.
+// Start with SQLite (zero setup). Later, switch provider to "postgresql" or "mysql" for production.
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Supplier {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?
+  dueAmount Float    @default(0) // what the shop owes this supplier
+  createdAt DateTime @default(now())
+
+  owner     User      @relation(fields: [ownerId], references: [id])
+  ownerId   Int
+
+  purchases Purchase[]
+
+  @@unique([ownerId, name])
+}
+
+model Purchase {
+  id          Int            @id @default(autoincrement())
+  billNumber  String?        // the supplier's own bill/invoice number, if given
+  totalAmount Float
+  paidAmount  Float          @default(0)
+  createdAt   DateTime       @default(now())
+
+  owner       User           @relation(fields: [ownerId], references: [id])
+  ownerId     Int
+
+  supplier    Supplier       @relation(fields: [supplierId], references: [id])
+  supplierId  Int
+
+  items       PurchaseItem[]
+}
+
+model PurchaseItem {
+  id         Int      @id @default(autoincrement())
+  quantity   Float
+  costEach   Float    // what the shop paid per unit (may differ from selling price)
+  subtotal   Float
+
+  purchase   Purchase @relation(fields: [purchaseId], references: [id])
+  purchaseId Int
+
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  Int
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  shopName      String
+  email         String   @unique
+  password      String   // hashed
+  phone         String?  // shown on invoices so customers can call with queries
+  gstNumber     String?
+  invoicePrefix String   @default("INV")
+  createdAt     DateTime @default(now())
+
+  products   Product[]
+  bills      Bill[]
+  customers  Customer[]
+  categories Category[]
+  suppliers  Supplier[]
+  purchases  Purchase[]
+}
+
+model Category {
+  id      Int    @id @default(autoincrement())
+  name    String
+
+  owner   User   @relation(fields: [ownerId], references: [id])
+  ownerId Int
+
+  products Product[]
+
+  @@unique([ownerId, name]) // each shop defines its own category list
+}
+
+model Product {
+  id          Int       @id @default(autoincrement())
+  name        String
+  barcode     String?
+  unit        String    @default("pcs") // e.g. litre, kg, pcs
+  price       Float
+  gstPercent  Float     @default(18) // GST rate for this product, e.g. 18 for 18%
+  stockQty    Float     @default(0)
+  lowStockAt  Float     @default(5)
+  createdAt   DateTime  @default(now())
+
+  owner       User      @relation(fields: [ownerId], references: [id])
+  ownerId     Int
+
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  Int?
+
+  billItems   BillItem[]
+  purchaseItems PurchaseItem[]
+
+  // Prevents the same shop from having two products with the identical name
+  @@unique([ownerId, name])
+  // Prevents the same shop from having two products with the identical barcode
+  // (SQLite/Postgres both allow multiple NULLs here, so products without a barcode are unaffected)
+  @@unique([ownerId, barcode])
+}
+
+model Customer {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?
+  dueAmount Float    @default(0) // for credit/khata tracking
+  createdAt DateTime @default(now())
+
+  owner     User     @relation(fields: [ownerId], references: [id])
+  ownerId   Int
+
+  bills     Bill[]
+}
+
+model Bill {
+  id          Int        @id @default(autoincrement())
+  invoiceNo   String
+  subTotal    Float      @default(0) // sum of items before GST
+  gstAmount   Float      @default(0) // total GST charged
+  totalAmount Float      // subTotal + gstAmount
+  paidAmount  Float      @default(0)
+  paymentMode String     @default("cash") // cash, upi, credit
+  createdAt   DateTime   @default(now())
+
+  owner       User       @relation(fields: [ownerId], references: [id])
+  ownerId     Int
+
+  customer    Customer?  @relation(fields: [customerId], references: [id])
+  customerId  Int?
+
+  items       BillItem[]
+}
+
+model BillItem {
+  id         Int      @id @default(autoincrement())
+  quantity   Float
+  priceEach  Float    // price at time of sale (don't rely on Product.price later)
+  gstPercent Float    @default(18) // GST rate at time of sale
+  subtotal   Float    // quantity * priceEach (before GST)
+  gstAmount  Float    @default(0) // GST charged on this line item
+
+  bill       Bill     @relation(fields: [billId], references: [id])
+  billId     Int
+
+  product    Product  @relation(fields: [productId], references: [id])
+  productId  Int
+}
